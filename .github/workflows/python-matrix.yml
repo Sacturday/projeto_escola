@@ -1,0 +1,49 @@
+name: Python Compatibility Matrix
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master", "develop"]
+  workflow_dispatch:
+
+jobs:
+  compatibility:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Upgrade packaging tools
+        run: python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Verify installed dependencies
+        run: python -m pip check
+
+      - name: Verify Python version
+        run: python -c "import sys; print(sys.version); assert sys.version_info[:2] == tuple(map(int, '${{ matrix.python-version }}'.split('.')))"
+
+      - name: Compile all Python modules
+        run: python -m compileall -q .
+
+      - name: Import every Python module
+        run: python tests_imports.py
+
+      - name: Verify critical business rules
+        run: python tests_regras.py

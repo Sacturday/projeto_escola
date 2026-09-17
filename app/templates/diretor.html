@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Gestão da escola{% endblock %}
+{% block content %}
+<div class="topo">
+  <div class="usuario-info">{{ usuario.nome }} <span class="badge">DIRETOR</span></div>
+  <div class="logo-center"><img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói"></div>
+  <a href="/api/auth/logout" class="btn-pill">↪ Sair</a>
+</div>
+<h1>{{ escola.nome }}</h1>
+<p class="subtitulo">Painel de gestão da escola</p>
+
+<div class="dashboard-grid">
+  <div class="indicador"><span>Professores ativos</span><strong>{{ indicadores.professores }}</strong></div>
+  <div class="indicador"><span>Turmas ativas</span><strong>{{ indicadores.turmas }}</strong></div>
+  <div class="indicador"><span>Alunos ativos</span><strong>{{ indicadores.alunos }}</strong></div>
+</div>
+
+<div class="cartao-tabela">
+  <h2>Áreas da escola</h2>
+  <div class="atalhos-grid">
+    <div class="atalho"><strong>Professores</strong><span>Consultar docentes e suas vinculações.</span></div>
+    <div class="atalho"><strong>Turmas</strong><span>Consultar turmas e professores.</span></div>
+    <div class="atalho"><strong>Alunos</strong><span>Consultar alunos e matrículas.</span></div>
+    <div class="atalho"><strong>Frequência</strong><span>Acompanhar e corrigir lançamentos.</span></div>
+    <div class="atalho"><strong>Relatórios</strong><span>Indicadores de presença e faltas.</span></div>
+    <div class="atalho"><strong>Auditoria</strong><span>Histórico de correções da escola.</span></div>
+  </div>
+</div>
+<footer>Secretaria Municipal de Educação de Niterói</footer>
+{% endblock %}

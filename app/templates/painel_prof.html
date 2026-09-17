@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Chamada — {{ turma.nome }}{% endblock %}
+{% block content %}
+<div class="topo">
+  <a href="/turmas" class="btn-pill">← Voltar</a>
+  <div class="logo-center"><img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói"></div>
+  <a href="/api/auth/logout" class="btn-pill">↪ Sair</a>
+</div>
+
+<h1>Bom dia, {{ usuario.nome }}!</h1>
+<p class="subtitulo">{{ hoje.strftime('%d/%m/%Y') }} · Chamada do dia</p>
+
+<div class="cartao-tabela">
+  <div class="cabecalho-cartao">
+    <div>
+      <h2>Turma {{ turma.nome }}</h2>
+      <p class="subtitulo subtitulo-esquerda">Todos os alunos iniciam como <strong>Neutro</strong>. O lançamento só é gravado quando você selecionar Presente ou Ausente.</p>
+    </div>
+    <div class="contador-neutros" id="contador-neutros">0 não lançados</div>
+  </div>
+
+  <table id="tabela-chamada">
+    <thead>
+      <tr><th>Nome do Aluno</th><th>Matrícula</th><th>Situação</th></tr>
+    </thead>
+    <tbody>
+      {% for aluno, frequencia in linhas %}
+      {% set status = frequencia.status.value if frequencia else 'NEUTRO' %}
+      <tr data-aluno-id="{{ aluno.id }}"
+          data-turma-id="{{ turma.id }}"
+          data-frequencia-id="{{ frequencia.id if frequencia else '' }}"
+          data-versao="{{ frequencia.versao if frequencia else '' }}"
+          data-status-selecionado="{{ status }}">
+        <td>{{ aluno.nome }}</td>
+        <td>{{ aluno.matricula }}</td>
+        <td>
+          <button type="button" class="btn-situacao {{ 'selecionado' if status == 'PRESENTE' else '' }}" onclick="marcar(this, 'PRESENTE')" {{ 'disabled' if status == 'FALTA_JUSTIFICADA' else '' }}>✓ Presente</button>
+          <button type="button" class="btn-situacao {{ 'selecionado' if status == 'FALTA' else '' }}" onclick="marcar(this, 'FALTA')" {{ 'disabled' if status == 'FALTA_JUSTIFICADA' else '' }}>✗ Ausente</button>
+          {% if status == 'FALTA_JUSTIFICADA' %}<span class="badge badge-justificada">Falta justificada</span>{% endif %}
+          {% if status == 'NEUTRO' %}<span class="estado-neutro">Não lançado</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="confirmar-container">
+    <button id="btn-confirmar" type="button" class="btn-confirmar" onclick="confirmarFrequencia()">
+      ✓ Confirmar Frequência
+    </button>
+  </div>
+</div>
+
+<footer>Secretaria Municipal de Educação de Niterói</footer>
+
+<script>
+function marcar(btn, status) {
+  const linha = btn.closest('tr');
+  linha.dataset.statusSelecionado = status;
+  linha.querySelectorAll('.btn-situacao').forEach(b => b.classList.remove('selecionado'));
+  btn.classList.add('selecionado');
+  const neutro = linha.querySelector('.estado-neutro');
+  if (neutro) neutro.remove();
+  atualizarContador();
+}
+
+function coletarLancamentos() {
+  const linhas = document.querySelectorAll('#tabela-chamada tbody tr[data-aluno-id]');
+  return Array.from(linhas)
+    .filter(linha => ['PRESENTE', 'FALTA'].includes(linha.dataset.statusSelecionado))
+    .map(linha => ({
+      aluno_id: parseInt(linha.dataset.alunoId),
+      turma_id: parseInt(linha.dataset.turmaId),
+      data: '{{ hoje.isoformat() }}',
+      status: linha.dataset.statusSelecionado,
+      frequencia_id: linha.dataset.frequenciaId ? parseInt(linha.dataset.frequenciaId) : null,
+      versao: linha.dataset.versao ? parseInt(linha.dataset.versao) : null
+    }));
+}
+
+async function confirmarFrequencia() {
+  const lancamentos = coletarLancamentos();
+  const totalAlunos = document.querySelectorAll('#tabela-chamada tbody tr[data-aluno-id]').length;
+  const pendentes = Array.from(document.querySelectorAll('#tabela-chamada tbody tr[data-aluno-id]'))
+    .filter(linha => linha.dataset.statusSelecionado === 'NEUTRO').length;
+  if (pendentes > 0) {
+    alert('Ainda existem alunos não lançados. Defina Presente ou Ausente para todos antes da confirmação.');
+    return;
+  }
+  if (!confirm('Deseja confirmar as alterações de frequência desta turma?')) return;
+
+  const botao = document.getElementById('btn-confirmar');
+  botao.disabled = true;
+  try {
+    const resposta = await fetch('/api/frequencias/confirmar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({lancamentos})
+    });
+    if (resposta.ok) {
+      alert('Frequência confirmada com sucesso!');
+      window.location.reload();
+    } else if (resposta.status === 409) {
+      alert('Não foi possível salvar porque alguns registros foram alterados por outro usuário. A página será recarregada.');
+      window.location.reload();
+    } else {
+      const detalhe = await resposta.json().catch(() => ({}));
+      alert(detalhe.detail || 'Não foi possível salvar a frequência.');
+    }
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+function atualizarContador() {
+  const linhas = document.querySelectorAll('#tabela-chamada tbody tr[data-aluno-id]');
+  const neutros = Array.from(linhas).filter(linha => linha.dataset.statusSelecionado === 'NEUTRO').length;
+  document.getElementById('contador-neutros').textContent = `${neutros} não lançados`;
+}
+
+atualizarContador();
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Importação de dados{% endblock %}
+{% block content %}
+<div class="topo">
+  <a href="/admin" class="btn-pill">← Administração</a>
+  <div class="logo-center"><img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói"></div>
+  <a href="/api/auth/logout" class="btn-pill">↪ Sair</a>
+</div>
+
+<h1>Importação de dados</h1>
+<p class="subtitulo">Área restrita ao ADMIN. Aceita arquivos .xls e .xlsx.</p>
+
+<div class="cartao-tabela">
+  <h2>1. Escolha o tipo de cadastro</h2>
+  <div class="form-grid">
+    <label>Tipo
+      <select id="tipo">
+        {% for tipo in tipos %}<option value="{{ tipo }}">{{ tipo }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Arquivo Excel
+      <input id="arquivo" type="file" accept=".xls,.xlsx">
+    </label>
+  </div>
+  <p class="subtitulo" style="text-align:left;margin-top:16px;">
+    A primeira linha da primeira planilha preenchida é usada como cabeçalho. A validação acontece antes da gravação.
+  </p>
+  <div class="import-actions">
+    <button id="btn-validar" class="btn-confirmar" type="button">Validar arquivo</button>
+    <button id="btn-importar" class="btn-pill" type="button" disabled>Importar dados</button>
+  </div>
+</div>
+
+<div id="resultado" class="cartao-tabela" style="display:none;margin-top:20px;"></div>
+
+<div class="cartao-tabela" style="margin-top:20px;">
+  <h2>Modelos de colunas</h2>
+  <div class="import-modelos">
+    <p><strong>ESCOLAS:</strong> NOME, CODIGO</p>
+    <p><strong>TURMAS:</strong> ESCOLA_CODIGO, NOME, ANO_LETIVO, TURNO (opcional)</p>
+    <p><strong>ALUNOS:</strong> ESCOLA_CODIGO, MATRICULA, NOME, DATA_NASCIMENTO (opcional)</p>
+    <p><strong>MATRICULAS:</strong> ESCOLA_CODIGO, MATRICULA, TURMA_NOME, ANO_LETIVO, DATA_INICIO (opcional), DATA_FIM (opcional)</p>
+    <p><strong>Não importar usuários por Excel:</strong> criação e alteração de contas permanece controlada pelo módulo de usuários do ADMIN, evitando senhas em planilhas.</p>
+  </div>
+</div>
+
+<footer>Secretaria Municipal de Educação de Niterói</footer>
+<script>
+let arquivoAtual = null;
+let ultimaValidacao = false;
+let importacaoId = null;
+const resultado = document.getElementById('resultado');
+const tipo = document.getElementById('tipo');
+const arquivo = document.getElementById('arquivo');
+const btnImportar = document.getElementById('btn-importar');
+
+function mostrar(obj) {
+  resultado.style.display = 'block';
+  resultado.innerHTML = '<h2>Resultado</h2><pre style="white-space:pre-wrap;">' + JSON.stringify(obj, null, 2) + '</pre>';
+}
+
+arquivo.addEventListener('change', () => {
+  arquivoAtual = arquivo.files[0] || null;
+  ultimaValidacao = false;
+  btnImportar.disabled = true;
+  resultado.style.display = 'none';
+});
+
+tipo.addEventListener('change', () => {
+  ultimaValidacao = false;
+  btnImportar.disabled = true;
+});
+
+document.getElementById('btn-validar').addEventListener('click', async () => {
+  if (!arquivoAtual) return alert('Selecione um arquivo .xls ou .xlsx.');
+  const fd = new FormData();
+  fd.append('arquivo', arquivoAtual);
+  const r = await fetch('/api/admin/importacoes/preview?tipo=' + encodeURIComponent(tipo.value), {method:'POST', body:fd});
+  const data = await r.json();
+  mostrar(data);
+  ultimaValidacao = r.ok && data.validada === true;
+  importacaoId = data.importacao_id || null;
+  btnImportar.disabled = !ultimaValidacao || !importacaoId;
+});
+
+document.getElementById('btn-importar').addEventListener('click', async () => {
+  if (!arquivoAtual || !ultimaValidacao) return;
+  if (!confirm('A importação será gravada no Neon. Deseja continuar?')) return;
+  const fd = new FormData();
+  fd.append('arquivo', arquivoAtual);
+  const r = await fetch('/api/admin/importacoes/confirmar?tipo=' + encodeURIComponent(tipo.value) + '&importacao_id=' + encodeURIComponent(importacaoId), {method:'POST', body:fd});
+  const data = await r.json();
+  mostrar(data);
+  if (r.ok) {
+    ultimaValidacao = false;
+    btnImportar.disabled = true;
+    arquivo.value = '';
+    arquivoAtual = null;
+  }
+});
+</script>
+{% endblock %}

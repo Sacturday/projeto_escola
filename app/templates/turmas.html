@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Minhas turmas{% endblock %}
+{% block content %}
+<div class="topo">
+  <div class="usuario-info">{{ usuario.nome }} <span class="badge">PROFESSOR</span></div>
+  <div class="logo-center"><img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói"></div>
+  <a href="/api/auth/logout" class="btn-pill">↪ Sair</a>
+</div>
+
+<h1>Minhas turmas</h1>
+<p class="subtitulo">Selecione uma turma para realizar a chamada</p>
+
+<div class="grade-turmas">
+  {% for turma, escola, total in turmas %}
+  <a href="/painel/{{ turma.id }}" class="cartao-turma">
+    <div>
+      <h3>{{ turma.nome }}</h3>
+      <p>🏫 {{ escola.nome }}</p>
+      <p>👥 {{ total or 0 }} alunos</p>
+      <p>📅 Ano letivo {{ turma.ano_letivo }}{% if turma.turno %} · {{ turma.turno }}{% endif %}</p>
+    </div>
+    <span>→</span>
+  </a>
+  {% else %}
+  <div class="cartao-tabela vazio">Nenhuma turma vinculada ao seu usuário.</div>
+  {% endfor %}
+</div>
+
+<footer>Secretaria Municipal de Educação de Niterói</footer>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Acesso — Controle de Frequência{% endblock %}
+{% block content %}
+<div class="login-page">
+  <div class="logo-center">
+    <img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói">
+  </div>
+  <h1>Bem-vindo(a)</h1>
+  <p class="subtitulo">Sistema de Controle de Frequência Escolar</p>
+
+  <form class="login-form" hx-post="/api/auth/login" hx-swap="none"
+        hx-on::after-request="if(!event.detail.successful) alert('Usuário ou senha inválidos.')">
+    <label for="username">Usuário</label>
+    <input id="username" type="text" name="username" placeholder="Nome de usuário" autocomplete="username" required>
+    <label for="password">Senha</label>
+    <input id="password" type="password" name="password" placeholder="Senha" autocomplete="current-password" required>
+    <button type="submit">Acessar</button>
+  </form>
+
+  <footer>Secretaria Municipal de Educação de Niterói</footer>
+</div>
+{% endblock %}

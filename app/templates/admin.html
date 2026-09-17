@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Administração da rede{% endblock %}
+{% block content %}
+<div class="topo">
+  <div class="usuario-info">{{ usuario.nome }} <span class="badge">ADMIN</span></div>
+  <div class="logo-center"><img src="/static/logo-niteroi.png" alt="Prefeitura de Niterói"></div>
+  <a href="/api/auth/logout" class="btn-pill">↪ Sair</a>
+</div>
+<h1>Administração da rede</h1>
+<p class="subtitulo">Visão geral da estrutura do sistema</p>
+
+<div class="dashboard-grid">
+  <div class="indicador"><span>Escolas ativas</span><strong>{{ indicadores.escolas }}</strong></div>
+  <div class="indicador"><span>Usuários ativos</span><strong>{{ indicadores.usuarios }}</strong></div>
+  <div class="indicador"><span>Turmas ativas</span><strong>{{ indicadores.turmas }}</strong></div>
+  <div class="indicador"><span>Alunos ativos</span><strong>{{ indicadores.alunos }}</strong></div>
+</div>
+
+<div class="cartao-tabela">
+  <h2>Áreas administrativas</h2>
+  <div class="atalhos-grid">
+    <div class="atalho"><strong>Escolas</strong><span>Cadastro e ativação das escolas da rede.</span></div>
+    <div class="atalho"><strong>Usuários</strong><span>Administradores, diretores e professores.</span></div>
+    <div class="atalho"><strong>Turmas</strong><span>Estrutura de turmas por escola e ano letivo.</span></div>
+    <div class="atalho"><strong>Alunos e matrículas</strong><span>Cadastro e histórico escolar.</span></div>
+    <div class="atalho"><strong>Frequência</strong><span>Consulta consolidada e correções auditadas.</span></div>
+    <div class="atalho"><strong>Auditoria</strong><span>Histórico das alterações de frequência.</span></div>
+    <a class="atalho" href="/admin/importacoes"><strong>Importação Excel</strong><span>Importe escolas, turmas, alunos e matrículas. Exclusivo ADMIN.</span></a>
+  </div>
+</div>
+<footer>Secretaria Municipal de Educação de Niterói</footer>
+{% endblock %}
