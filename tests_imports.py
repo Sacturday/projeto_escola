@@ -33,7 +33,11 @@ def discover_modules() -> list[tuple[str, Path]]:
     found: list[tuple[str, Path]] = []
     for path in sorted(ROOT.rglob("*.py")):
         rel = path.relative_to(ROOT)
-        if rel.as_posix() in {"tests_imports.py", "tests_regras.py"}:
+       if rel.as_posix() in {
+            "tests_imports.py",
+            "tests_regras.py",
+            "tests_alembic.py",
+        }:
             continue
         if "__pycache__" in rel.parts:
             continue
