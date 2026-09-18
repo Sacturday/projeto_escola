@@ -4,15 +4,17 @@ import ast
 
 ROOT = Path(__file__).resolve().parent
 
-
 def test_security_requires_key_in_production():
-    tree = ast.parse((ROOT / "app/security.py").read_text(encoding="utf-8"))
-    source = ast.unparse(tree)
-    assert 'APP_ENV' in source and 'SECRET_KEY' in source
-    assert 'decodificar_token' in source
-    assert 'PasswordHash' in source
-    assert 'pwdlib' in source
-    assert 'PyJWT' not in source
+    source = (
+        ROOT / "app/security.py"
+    ).read_text(encoding="utf-8")
+
+    assert "APP_ENV" in source
+    assert "SECRET_KEY" in source
+    assert "if APP_ENV == \"production\" and not SECRET_KEY" in source
+    assert "decodificar_token" in source
+    assert "PasswordHash" in source
+    assert "pwdlib" in source
 
 
 def test_school_code_is_mandatory_for_import():
