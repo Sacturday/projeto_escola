@@ -2,7 +2,7 @@
 from pathlib import Path
 import ast
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 
 def test_security_requires_key_in_production():
     source = (
