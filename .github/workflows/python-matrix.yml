@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -44,6 +44,9 @@ jobs:
 
       - name: Import every Python module
         run: python tests_imports.py
+
+      - name: Validate Alembic configuration
+        run: python tests_alembic.py
 
       - name: Verify critical business rules
         run: python tests_regras.py

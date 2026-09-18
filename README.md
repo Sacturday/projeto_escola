@@ -76,3 +76,7 @@ python tests_regras.py
 A matriz testa as versões exatas de dependências atualmente fixadas em `requirements.txt`. Uma versão do Python só deve ser considerada aprovada para produção quando sua execução na matriz estiver verde.
 
 Veja também `tests/compatibility_matrix.md`.
+
+## Compatibilidade Python
+
+A versão de produção/conservadora é fixada em Python 3.12 por `.python-version`. O CI testa automaticamente Python 3.12, 3.13 e 3.14. Dependências são fixadas em `requirements.txt` para permitir builds reproduzíveis.

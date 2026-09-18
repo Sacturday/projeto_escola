@@ -48,3 +48,16 @@
 - Cada versão instala o `requirements.txt` exato, executa `pip check`, `compileall`, `tests_imports.py` e `tests_regras.py`.
 - Adicionada documentação em `tests/README.md` e `tests/compatibility_matrix.md`.
 - A compatibilidade não é presumida: cada versão precisa passar o CI para ser considerada apta para produção.
+
+## RC-2 — modernização da stack Python
+
+- `requirements.txt` foi atualizado para versões atuais fixadas e compatíveis com a matriz Python 3.12/3.13/3.14.
+- `asyncpg` foi atualizado para 0.31.0.
+- Pydantic foi atualizado para 2.13.5; o `pydantic-core` passa a ser resolvido pela versão compatível de Pydantic, em vez de ser pinado diretamente.
+- FastAPI, Uvicorn, SQLAlchemy, Alembic, python-multipart e python-dotenv foram atualizados.
+- `passlib` foi removido e a aplicação passou a usar `pwdlib[argon2]` com Argon2id para novos hashes.
+- `python-jose` foi substituído por `PyJWT` 2.14.0.
+- `psycopg2-binary` foi removido: a aplicação utiliza `asyncpg` para PostgreSQL assíncrono e não havia uso de psycopg2 no código.
+- `.python-version` fixa Python 3.12 como versão de produção/conservadora do Render, enquanto CI continua testando 3.12, 3.13 e 3.14.
+- O teste de importação não tenta mais importar `migrations.env` diretamente; foi criado `tests_alembic.py` para validar a configuração do Alembic.
+- GitHub Actions atualizado para `actions/checkout@v6` e `actions/setup-python@v7`, eliminando a dependência das versões de Actions que geravam o aviso de Node.js 20.

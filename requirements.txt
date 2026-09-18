@@ -1,14 +1,14 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-asyncpg==0.29.0
-psycopg2-binary==2.9.9
-pydantic==2.5.0
-python-dotenv==1.0.0
-jinja2==3.1.2
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
-alembic==1.13.1
+# Runtime dependencies — tested by CI on Python 3.12, 3.13 and 3.14.
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+SQLAlchemy==2.0.54
+asyncpg==0.31.0
+pydantic==2.13.5
+python-dotenv==1.2.3
+Jinja2==3.1.6
+PyJWT==2.14.0
+pwdlib[argon2]==0.3.1
+python-multipart==0.0.32
+alembic==1.20.0
 openpyxl==3.1.5
-xlrd==2.0.1
+xlrd==2.0.2

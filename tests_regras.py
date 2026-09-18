@@ -10,6 +10,9 @@ def test_security_requires_key_in_production():
     source = ast.unparse(tree)
     assert 'APP_ENV' in source and 'SECRET_KEY' in source
     assert 'decodificar_token' in source
+    assert 'PasswordHash' in source
+    assert 'pwdlib' in source
+    assert 'PyJWT' not in source
 
 
 def test_school_code_is_mandatory_for_import():
