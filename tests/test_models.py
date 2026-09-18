@@ -1,3 +1,11 @@
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from app.database import Base
 from app import models
 
@@ -65,3 +73,13 @@ def test_frequencia_nao_tem_status_neutro_no_banco():
     assert "FALTA" in valores
     assert "FALTA_JUSTIFICADA" in valores
     assert "NEUTRO" not in valores
+
+
+if __name__ == "__main__":
+    test_tabelas_principais_existentes()
+    test_frequencia_tem_unicidade_aluno_turma_data()
+    test_aluno_tem_matricula_unica_por_escola()
+    test_professor_turma_e_chave_composta()
+    test_frequencia_nao_tem_status_neutro_no_banco()
+
+    print("RESULTADO: OK — modelos SQLAlchemy validados.")
